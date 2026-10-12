@@ -194,7 +194,19 @@ namespace iRacingReplayDirector
 		public int FinalFrame
 		{
 			get { return _finalFrame; }
-			set { _finalFrame = value; OnPropertyChanged("FinalFrame"); }
+			set
+			{
+				bool wasPositive = _finalFrame > 0;
+				_finalFrame = value;
+				OnPropertyChanged("FinalFrame");
+
+				// The Auto Director "Scan Replay" command is only enabled once a valid
+				// frame range is known; refresh the menus when that first becomes true.
+				if (!wasPositive && value > 0)
+				{
+					RefreshCommandStates();
+				}
+			}
 		}
 
 		private bool _slowMotionEnabled;

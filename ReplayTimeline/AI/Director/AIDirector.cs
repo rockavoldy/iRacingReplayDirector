@@ -9,6 +9,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Input;
 
 namespace iRacingReplayDirector.AI.Director
 {
@@ -89,17 +90,36 @@ namespace iRacingReplayDirector.AI.Director
 			if (Application.Current?.Dispatcher == null)
 			{
 				OnPropertyChanged(propertyName);
+				RaiseCommandsCanExecuteChanged();
 				return;
 			}
 
 			if (Application.Current.Dispatcher.CheckAccess())
-			{
+		{
 				OnPropertyChanged(propertyName);
+				RaiseCommandsCanExecuteChanged();
 			}
 			else
 			{
-				Application.Current.Dispatcher.BeginInvoke(new Action(() => OnPropertyChanged(propertyName)));
+				Application.Current.Dispatcher.BeginInvoke(new Action(() =>
+				{
+					OnPropertyChanged(propertyName);
+					RaiseCommandsCanExecuteChanged();
+				}));
 			}
+		}
+
+		/// <summary>
+		/// Force WPF to re-evaluate the CanExecute of the Auto Director menu commands.
+		/// Without this, items such as "Scan Replay for Events" / "Generate Camera Plan"
+		/// / "Apply Camera Plan" stay greyed out after the AI state changes (which can
+		/// happen on background threads), because CommandManager.RequerySuggested only
+		/// fires on user input.
+		/// </summary>
+		private static void RaiseCommandsCanExecuteChanged()
+		{
+			try { CommandManager.InvalidateRequerySuggested(); }
+			catch { }
 		}
 
 		public AIDirector(ReplayDirectorVM viewModel)
@@ -123,6 +143,15 @@ namespace iRacingReplayDirector.AI.Director
 				{
 					EndpointUrl = Settings.LocalModelEndpoint,
 					Model = Settings.LocalModelName
+				};
+			}
+			else if (Settings.SelectedProvider == "Compatible")
+			{
+				return new OpenAICompatibleProvider
+				{
+					BaseUrl = Settings.OpenAICompatibleBaseUrl,
+					ApiKey = Settings.OpenAICompatibleApiKey,
+					Model = Settings.OpenAICompatibleModel
 				};
 			}
 			else

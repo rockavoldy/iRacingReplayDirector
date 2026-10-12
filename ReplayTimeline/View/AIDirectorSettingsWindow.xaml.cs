@@ -21,16 +21,17 @@ namespace iRacingReplayDirector
 			// Load provider selection
 			if (_aiDirector.Settings.SelectedProvider == "Local")
 			{
+				ProviderComboBox.SelectedIndex = 2;
+			}
+			else if (_aiDirector.Settings.SelectedProvider == "Compatible")
+			{
 				ProviderComboBox.SelectedIndex = 1;
-				OpenAIPanel.Visibility = Visibility.Collapsed;
-				LocalModelPanel.Visibility = Visibility.Visible;
 			}
 			else
 			{
 				ProviderComboBox.SelectedIndex = 0;
-				OpenAIPanel.Visibility = Visibility.Visible;
-				LocalModelPanel.Visibility = Visibility.Collapsed;
 			}
+			UpdateProviderPanelVisibility();
 
 			// Load OpenAI settings
 			ApiKeyBox.Password = _aiDirector.Settings.OpenAIApiKey;
@@ -46,6 +47,14 @@ namespace iRacingReplayDirector
 			// Load local model settings
 			LocalEndpointBox.Text = _aiDirector.Settings.LocalModelEndpoint;
 			LocalModelNameBox.Text = _aiDirector.Settings.LocalModelName;
+
+			// Load OpenAI-compatible settings
+			CompatibleBaseUrlBox.Text = _aiDirector.Settings.OpenAICompatibleBaseUrl;
+			CompatibleApiKeyBox.Password = _aiDirector.Settings.OpenAICompatibleApiKey;
+			if (!string.IsNullOrWhiteSpace(_aiDirector.Settings.OpenAICompatibleModel))
+			{
+				CompatibleModelComboBox.Text = _aiDirector.Settings.OpenAICompatibleModel;
+			}
 
 			// Load event detection settings
 			DetectIncidentsCheckBox.IsChecked = _aiDirector.Settings.DetectIncidents;
@@ -156,6 +165,11 @@ namespace iRacingReplayDirector
 			_aiDirector.Settings.LocalModelEndpoint = LocalEndpointBox.Text;
 			_aiDirector.Settings.LocalModelName = LocalModelNameBox.Text;
 
+			// Save OpenAI-compatible settings
+			_aiDirector.Settings.OpenAICompatibleBaseUrl = CompatibleBaseUrlBox.Text;
+			_aiDirector.Settings.OpenAICompatibleApiKey = CompatibleApiKeyBox.Password;
+			_aiDirector.Settings.OpenAICompatibleModel = CompatibleModelComboBox.Text;
+
 			// Save event detection settings
 			_aiDirector.Settings.DetectIncidents = DetectIncidentsCheckBox.IsChecked ?? true;
 			_aiDirector.Settings.DetectOvertakes = DetectOvertakesCheckBox.IsChecked ?? true;
@@ -253,20 +267,20 @@ namespace iRacingReplayDirector
 
 		private void ProviderComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
 		{
-			if (OpenAIPanel == null || LocalModelPanel == null)
+			UpdateProviderPanelVisibility();
+		}
+
+		private void UpdateProviderPanelVisibility()
+		{
+			if (OpenAIPanel == null || LocalModelPanel == null || CompatiblePanel == null)
 				return;
 
 			var selectedItem = ProviderComboBox.SelectedItem as ComboBoxItem;
-			if (selectedItem?.Tag?.ToString() == "Local")
-			{
-				OpenAIPanel.Visibility = Visibility.Collapsed;
-				LocalModelPanel.Visibility = Visibility.Visible;
-			}
-			else
-			{
-				OpenAIPanel.Visibility = Visibility.Visible;
-				LocalModelPanel.Visibility = Visibility.Collapsed;
-			}
+			string provider = selectedItem?.Tag?.ToString() ?? "OpenAI";
+
+			OpenAIPanel.Visibility = provider == "OpenAI" ? Visibility.Visible : Visibility.Collapsed;
+			CompatiblePanel.Visibility = provider == "Compatible" ? Visibility.Visible : Visibility.Collapsed;
+			LocalModelPanel.Visibility = provider == "Local" ? Visibility.Visible : Visibility.Collapsed;
 		}
 
 		private void UseAICheckBox_Changed(object sender, RoutedEventArgs e)
@@ -335,6 +349,70 @@ namespace iRacingReplayDirector
 			{
 				ConnectionStatusText.Text = $"Error: {ex.Message}";
 				ConnectionStatusText.Foreground = System.Windows.Media.Brushes.Red;
+			}
+		}
+
+		private async void FetchModels_Click(object sender, RoutedEventArgs e)
+		{
+			CompatibleModelsStatusText.Text = "Fetching models...";
+			CompatibleModelsStatusText.Foreground = System.Windows.Media.Brushes.Gray;
+
+			try
+			{
+				var provider = new iRacingReplayDirector.AI.LLM.OpenAICompatibleProvider
+				{
+					BaseUrl = CompatibleBaseUrlBox.Text,
+					ApiKey = CompatibleApiKeyBox.Password
+				};
+
+				if (string.IsNullOrWhiteSpace(provider.BaseUrl))
+				{
+					CompatibleModelsStatusText.Text = "Please enter a Base URL first.";
+					CompatibleModelsStatusText.Foreground = System.Windows.Media.Brushes.Orange;
+					return;
+				}
+
+				var models = await provider.GetAvailableModelsAsync();
+
+				if (models.Count == 0)
+				{
+					CompatibleModelsStatusText.Text = "No models returned by the API.";
+					CompatibleModelsStatusText.Foreground = System.Windows.Media.Brushes.Orange;
+					return;
+				}
+
+				models.Sort(System.StringComparer.OrdinalIgnoreCase);
+
+				string current = CompatibleModelComboBox.Text;
+				CompatibleModelComboBox.ItemsSource = models;
+
+				// Auto-populate the selected model, preserving any prior manual selection.
+				if (!string.IsNullOrWhiteSpace(current) && models.Contains(current))
+				{
+					CompatibleModelComboBox.SelectedItem = current;
+				}
+				else
+				{
+					CompatibleModelComboBox.SelectedIndex = 0;
+				}
+
+				CompatibleModelsStatusText.Text = $"Loaded {models.Count} models.";
+				CompatibleModelsStatusText.Foreground = System.Windows.Media.Brushes.Green;
+			}
+			catch (System.Net.Http.HttpRequestException httpEx)
+			{
+				CompatibleModelsStatusText.Text = $"Network error: {httpEx.Message}";
+				CompatibleModelsStatusText.Foreground = System.Windows.Media.Brushes.Red;
+			}
+			catch (System.Threading.Tasks.TaskCanceledException)
+			{
+				CompatibleModelsStatusText.Text = "Request timed out. Check the Base URL.";
+				CompatibleModelsStatusText.Foreground = System.Windows.Media.Brushes.Red;
+			}
+			catch (System.Exception ex)
+			{
+				CompatibleModelsStatusText.Text = $"Error: {ex.Message}";
+				CompatibleModelsStatusText.Foreground = System.Windows.Media.Brushes.Red;
 			}
 		}
 

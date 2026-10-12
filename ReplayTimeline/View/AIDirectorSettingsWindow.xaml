@@ -71,6 +71,7 @@
                         <ComboBox x:Name="ProviderComboBox" Width="200" HorizontalAlignment="Left"
                                   SelectionChanged="ProviderComboBox_SelectionChanged">
                             <ComboBoxItem Content="OpenAI" Tag="OpenAI"/>
+                            <ComboBoxItem Content="OpenAI Compatible" Tag="Compatible"/>
                             <ComboBoxItem Content="Local Model" Tag="Local"/>
                         </ComboBox>
 
@@ -101,6 +102,29 @@
                             <TextBlock Text="Model Name:" Margin="0,10,0,2"/>
                             <TextBox x:Name="LocalModelNameBox" Width="200" HorizontalAlignment="Left"
                                      Text="llama3"/>
+                        </StackPanel>
+
+                        <!-- OpenAI Compatible Settings -->
+                        <StackPanel x:Name="CompatiblePanel" Margin="0,15,0,0" Visibility="Collapsed">
+                            <TextBlock Text="OpenAI Compatible Settings" FontWeight="SemiBold" Margin="0,0,0,5"/>
+                            <TextBlock Text="Any service exposing an OpenAI-compatible API (OpenRouter, Groq, LM Studio, etc.)"
+                                       FontSize="11" Foreground="Gray" TextWrapping="Wrap" Margin="0,0,0,5"/>
+
+                            <TextBlock Text="Base URL:" Margin="0,5,0,2"/>
+                            <TextBox x:Name="CompatibleBaseUrlBox" Width="350" HorizontalAlignment="Left"
+                                     ToolTip="e.g. https://api.openai.com/v1"/>
+
+                            <TextBlock Text="API Key (optional):" Margin="0,10,0,2"/>
+                            <PasswordBox x:Name="CompatibleApiKeyBox" Width="350" HorizontalAlignment="Left"/>
+
+                            <TextBlock Text="Model:" Margin="0,10,0,2"/>
+                            <ComboBox x:Name="CompatibleModelComboBox" Width="350" HorizontalAlignment="Left"
+                                      IsEditable="True"/>
+
+                            <Button Content="Fetch Models" Width="120" HorizontalAlignment="Left" Margin="0,10,0,0"
+                                    Click="FetchModels_Click"/>
+                            <TextBlock x:Name="CompatibleModelsStatusText" Margin="0,5,0,0" Foreground="Gray"
+                                       TextWrapping="Wrap"/>
                         </StackPanel>
 
                         <Button Content="Test Connection" Width="120" HorizontalAlignment="Left" Margin="0,20,0,0"

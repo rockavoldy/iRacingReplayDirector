@@ -39,6 +39,10 @@ namespace iRacingReplayDirector
 			Sim.Instance.Start();
 		}
 
+		// Number of diagnostic lines logged; kept small so a live run reveals why the UI
+		// stays disabled without flooding crash.log.
+		private int m_DiagnosticsLogged;
+
 		private void InitVariables()
 		{
 			NodeCollection = new NodeCollection();
@@ -127,6 +131,19 @@ namespace iRacingReplayDirector
 			NodeCollection.Nodes.Clear();
 			StatusBarSessionID = "No Session Loaded.";
 			StatusBarCurrentSessionInfo = "";
+
+			RefreshCommandStates();
+		}
+
+		/// <summary>
+		/// Re-evaluate the CanExecute of menu commands (e.g. Auto Director's Scan/Generate/Apply)
+		/// when session readiness changes. CommandManager.RequerySuggested alone does not fire
+		/// when state changes from SDK callbacks, which leaves those menu items greyed out.
+		/// </summary>
+		private static void RefreshCommandStates()
+		{
+			try { System.Windows.Input.CommandManager.InvalidateRequerySuggested(); }
+			catch { }
 		}
 
 		private bool DriverOnTrackFilter(object item)
@@ -144,18 +161,91 @@ namespace iRacingReplayDirector
 
 		private void SessionInfoUpdatedCallback(object sender, SdkWrapper.SessionInfoUpdatedEventArgs e)
 		{
+			ProcessSessionInfo(e.SessionInfo);
+		}
+
+		/// <summary>
+		/// Load/refresh session information from the SDK. Called from the normal
+		/// SessionInfoUpdated event and, as a fallback, when the iRacingSimulator wrapper
+		/// throws before re-raising that event (see App.OnDispatcherUnhandledException).
+		/// </summary>
+		public void ProcessSessionInfo(iRacingSdkWrapper.SessionInfo sessionInfo)
+		{
+			if (sessionInfo == null)
+				sessionInfo = Sim.Instance.SessionInfo;
+
+			if (sessionInfo == null)
+				return;
+
 			GetSessionDrivers();
 			GetSessionCameras();
 			VerifyExistingNodeCameras();
 
-			YamlQuery weekendInfoQuery = e.SessionInfo["WeekendInfo"];
+			YamlQuery weekendInfoQuery = sessionInfo["WeekendInfo"];
 			SessionID = int.Parse(weekendInfoQuery["SubSessionID"].GetValue("-1"));
 			StatusBarSessionID = $"Session ID: {SessionID}";
 
 			if (!SessionInfoLoaded)
 			{
-				InitSession();
+				try
+				{
+					InitSession();
+				}
+				catch (Exception ex)
+				{
+					// Session ID is shown but the UI stays disabled when InitSession throws
+					// before it sets SessionInfoLoaded. Record the real cause, then rethrow so
+					// behaviour is otherwise unchanged.
+					LogDiagnosticThrottled("InitSession failed: " + ex);
+					throw;
+				}
 			}
+
+			LogReadinessState();
+			RefreshCommandStates();
+		}
+
+		/// <summary>
+		/// Fallback invoked when the closed-source iRacingSimulator wrapper throws while
+		/// handling session/telemetry updates, which prevents its re-raised events from
+		/// reaching this app. Re-drives the app's own processing directly from Sim.Instance
+		/// so drivers, cameras, the timeline and the Auto Director stay functional.
+		/// </summary>
+		public void RecoverFromWrapperError()
+		{
+			try { ProcessSessionInfo(Sim.Instance?.SessionInfo); }
+			catch (Exception ex) { LogDiagnosticThrottled("Recover: ProcessSessionInfo failed: " + ex); }
+
+			try { ProcessTelemetry(Sim.Instance?.Telemetry); }
+			catch (Exception ex) { LogDiagnosticThrottled("Recover: ProcessTelemetry failed: " + ex); }
+
+			RefreshCommandStates();
+		}
+
+		/// <summary>
+		/// Log the state that decides whether the UI (Auto Director, Add Cam Change) is
+		/// enabled, a few times per run, so a live session reveals the cause of a disabled UI.
+		/// </summary>
+		private void LogReadinessState()
+		{
+			LogDiagnosticThrottled(
+				$"Readiness: SessionInfoLoaded={SessionInfoLoaded}, IsLiveSession={IsLiveSession}, " +
+				$"SessionID={SessionID}, Drivers={Drivers.Count}, Cameras={Cameras.Count}, " +
+				$"CurrentDriver={(CurrentDriver?.Name ?? "<null>")}, CurrentCamera={(CurrentCamera?.GroupName ?? "<null>")}, " +
+				$"CurrentFrame={CurrentFrame}, FinalFrame={FinalFrame}, PlaybackEnabled={PlaybackEnabled}");
+		}
+
+		/// <summary>
+		/// Write a diagnostic line to crash.log, but only a handful per run, so a repeating
+		/// wrapper error cannot flood the log.
+		/// </summary>
+		private void LogDiagnosticThrottled(string message)
+		{
+			if (m_DiagnosticsLogged >= 5)
+				return;
+
+			m_DiagnosticsLogged++;
+			App.LogDiagnostic(message);
 		}
 
 		private void GetSessionDrivers()
@@ -304,33 +394,62 @@ namespace iRacingReplayDirector
 				NodeCollection.SetSessionId(SessionID);
 				LoadExistingProjectFile();
 
-				InSimUIEnabled = true;
+				// Must not prevent the session being marked ready. In the wrapper-recovery
+				// path this runs inside an unhandled-exception handler, where calling into
+				// the SDK can fail; log the failure but still enable the UI.
+				try { InSimUIEnabled = true; }
+				catch (Exception ex) { LogDiagnosticThrottled("InitSession: enabling sim UI failed: " + ex); }
+
 				SessionInfoLoaded = true;
+
+				RefreshCommandStates();
 			}
 
-			CurrentDriver = Drivers.FirstOrDefault(d => d.Id == Sim.Instance.Telemetry.CamCarIdx.Value);
-			CurrentCamera = Cameras.FirstOrDefault(c => c.GroupNum == Sim.Instance.Telemetry.CamGroupNumber.Value);
+			// Telemetry can be unavailable when the wrapper failed mid-update; don't let
+			// that stop the session becoming usable.
+			try
+			{
+				CurrentDriver = Drivers.FirstOrDefault(d => d.Id == Sim.Instance.Telemetry.CamCarIdx.Value);
+				CurrentCamera = Cameras.FirstOrDefault(c => c.GroupNum == Sim.Instance.Telemetry.CamGroupNumber.Value);
+			}
+			catch (Exception ex) { LogDiagnosticThrottled("InitSession: reading telemetry selections failed: " + ex); }
 		}
 
 		private void TelemetryUpdatedCallback(object sender, SdkWrapper.TelemetryUpdatedEventArgs e)
+		{
+			ProcessTelemetry(e.TelemetryInfo);
+		}
+
+		/// <summary>
+		/// Update frame/timing state from telemetry. Called from the normal TelemetryUpdated
+		/// event and, as a fallback, when the iRacingSimulator wrapper throws before re-raising
+		/// that event (see App.OnDispatcherUnhandledException).
+		/// </summary>
+		public void ProcessTelemetry(TelemetryInfo telemetry)
 		{
 			// Leave now if the session info hasn't already been loaded
 			if (!SessionInfoLoaded)
 				return;
 
-			CurrentFrame = e.TelemetryInfo.ReplayFrameNum.Value;
-			FinalFrame = CurrentFrame + e.TelemetryInfo.ReplayFrameNumEnd.Value;
-			SessionTime = e.TelemetryInfo.SessionTime.Value;
-			CurrentPlaybackSpeed = e.TelemetryInfo.ReplayPlaySpeed.Value;
+			if (telemetry == null)
+				telemetry = Sim.Instance.Telemetry;
+
+			if (telemetry == null)
+				return;
+
+			CurrentFrame = telemetry.ReplayFrameNum.Value;
+			FinalFrame = CurrentFrame + telemetry.ReplayFrameNumEnd.Value;
+			SessionTime = telemetry.SessionTime.Value;
+			CurrentPlaybackSpeed = telemetry.ReplayPlaySpeed.Value;
 			PlaybackEnabled = CurrentPlaybackSpeed != 0;
-			SlowMotionEnabled = e.TelemetryInfo.ReplayPlaySlowMotion.Value;
+			SlowMotionEnabled = telemetry.ReplayPlaySlowMotion.Value;
 			NormalPlaybackSpeedEnabled = CurrentPlaybackSpeed == 1 && !SlowMotionEnabled;
 			InSimCaptureSettingEnabled = Sim.Instance.Sdk.GetTelemetryValue<bool>("VidCapEnabled").Value;
 			InSimCaptureActive = Sim.Instance.Sdk.GetTelemetryValue<bool>("VidCapActive").Value;
 
 			// Set current car/camera based on sim selections (won't update unless different to app)
-			CurrentDriver = Drivers.FirstOrDefault(d => d.Id == e.TelemetryInfo.CamCarIdx.Value);
-			CurrentCamera = Cameras.FirstOrDefault(c => c.GroupNum == e.TelemetryInfo.CamGroupNumber.Value);
+			CurrentDriver = Drivers.FirstOrDefault(d => d.Id == telemetry.CamCarIdx.Value);
+			CurrentCamera = Cameras.FirstOrDefault(c => c.GroupNum == telemetry.CamGroupNumber.Value);
 
 			// Update driver telemetry info
 			UpdateDriverTelemetry();

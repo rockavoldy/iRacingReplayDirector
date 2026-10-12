@@ -41,6 +41,27 @@ namespace iRacingReplayDirector.AI.Director
 			set { _localModelName = value; OnPropertyChanged("LocalModelName"); }
 		}
 
+		private string _openAICompatibleBaseUrl = "";
+		public string OpenAICompatibleBaseUrl
+		{
+			get { return _openAICompatibleBaseUrl; }
+			set { _openAICompatibleBaseUrl = value; OnPropertyChanged("OpenAICompatibleBaseUrl"); }
+		}
+
+		private string _openAICompatibleApiKey = "";
+		public string OpenAICompatibleApiKey
+		{
+			get { return _openAICompatibleApiKey; }
+			set { _openAICompatibleApiKey = value; OnPropertyChanged("OpenAICompatibleApiKey"); }
+		}
+
+		private string _openAICompatibleModel = "";
+		public string OpenAICompatibleModel
+		{
+			get { return _openAICompatibleModel; }
+			set { _openAICompatibleModel = value; OnPropertyChanged("OpenAICompatibleModel"); }
+		}
+
 		// Event Detection Settings
 		private bool _detectIncidents = true;
 		public bool DetectIncidents
