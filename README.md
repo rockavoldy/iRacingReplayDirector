@@ -295,13 +295,16 @@ You can use your own modified cameras using the iRacing Camera Tool. I've writte
 
 ## Building from source
 
-Prerequisites: .NET Framework 4.7.2 SDK and Visual Studio 2015+ (or MSBuild).
+Prerequisites: .NET Framework 4.8 SDK and Visual Studio 2017+ (or MSBuild).
 
-The iRacing SDK wrapper is a git submodule, so initialise it before building:
+The iRacing SDK wrapper is a git submodule (`rockavoldy/iRacingSdkWrapper`), so initialise
+it before building. Its projects are SDK-style and restore via `PackageReference`, so run
+an MSBuild restore in addition to `nuget restore` (which handles the app's `packages.config`):
 
 ```bash
 git submodule update --init --recursive
 nuget restore ReplayTimeline.sln
+msbuild ReplayTimeline.sln -t:Restore /p:Configuration=Release /p:Platform="Any CPU"
 msbuild ReplayTimeline.sln /p:Configuration=Release /p:Platform="Any CPU"
 ```
 

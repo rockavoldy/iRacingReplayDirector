@@ -1,7 +1,7 @@
 # Code Audit - iRacing Automated Replay Director
 
 Scope: full static review of the `ReplayTimeline` project (`iRacingSequenceDirector`),
-a WPF / .NET Framework 4.7.2 desktop application.
+a WPF / .NET Framework 4.8 desktop application.
 
 Severity legend: **High** = correctness/data-loss or blocks build/CI; **Medium** =
 robustness or maintainability with real user impact; **Low** = hygiene, style, or
@@ -16,7 +16,7 @@ environment-specific risk.
 
 | # | Severity | Finding | Location |
 |---|----------|---------|----------|
-| B1 | High | Four assemblies were referenced from outside the repo and only `Newtonsoft.Json` is NuGet-restorable, so a clean build was impossible without first building `NickThissen/iRacingSdkWrapper`. **Resolved** by adding the wrapper as a git submodule (`external/iRacingSdkWrapper`) built via `ProjectReference`. | [`ReplayTimeline.csproj`](../ReplayTimeline/ReplayTimeline.csproj:48) |
+| B1 | High | Four assemblies were referenced from outside the repo and only `Newtonsoft.Json` is NuGet-restorable, so a clean build was impossible without first building the wrapper. **Resolved** by adding the wrapper as a git submodule (`external/iRacingSdkWrapper`, source `rockavoldy/iRacingSdkWrapper`) built via `ProjectReference`. | [`ReplayTimeline.csproj`](../ReplayTimeline/ReplayTimeline.csproj:48) |
 | B2 | Medium | `YamlDotNet.dll` `HintPath` pointed at a `Debug` output folder while the other three wrapper DLLs used `Release` - inconsistent and fragile. **Resolved**: the wrapper DLLs are now `ProjectReference`s and `YamlDotNet.dll` is a transitive dependency copied to the output automatically. | [`ReplayTimeline.csproj`](../ReplayTimeline/ReplayTimeline.csproj:48) |
 | B3 | Medium | Dead duplicate sources at the project root declared namespace `ReplayTimeline`, were not included in the `.csproj`, and duplicated the live `iRacingReplayDirector` types. **Resolved** by deletion. | `ReplayTimeline/TimelineProject.cs`, `ReplayTimeline/SaveLoadHelper.cs` |
 | B4 | Low | Version drift: UI reports `1.41`, assembly is `1.0.0.0`, copyright `2021`. | [`ReplayDirectorVM.Properties.cs`](../ReplayTimeline/ViewModel/ReplayDirectorVM.Properties.cs:17), [`AssemblyInfo.cs`](../ReplayTimeline/Properties/AssemblyInfo.cs:54) |
@@ -104,7 +104,7 @@ The following findings were addressed:
 
 | # | Status | What changed |
 |---|--------|--------------|
-| B1 | Resolved | `NickThissen/iRacingSdkWrapper` added as a git submodule at `external/iRacingSdkWrapper` and built as part of `ReplayTimeline.sln`; the app references the three wrapper projects via `ProjectReference`, so a clean build no longer needs pre-built DLLs. CI checks out submodules recursively. |
+| B1 | Resolved | The iRacing SDK wrapper is a git submodule at `external/iRacingSdkWrapper` (source `rockavoldy/iRacingSdkWrapper`) built as part of `ReplayTimeline.sln`; the app references the three wrapper projects via `ProjectReference`, so a clean build no longer needs pre-built DLLs. CI checks out submodules recursively. The wrapper projects are SDK-style targeting `net48`, so the app and CI target `net48`. |
 | B2 | Resolved | The four wrapper `HintPath`s are gone; `iRacingSdkWrapper.dll`, `iRacingSimulator.dll` and `iRSDKSharp.dll` come from `ProjectReference`, and `YamlDotNet.dll` is a transitive dependency copied to the output automatically. |
 | B3 | Resolved | Dead duplicate `ReplayTimeline/TimelineProject.cs` and `ReplayTimeline/SaveLoadHelper.cs` deleted. |
 | B4 | Resolved | `AssemblyInfo.cs` aligned to `1.4.1.0` (informational `1.41`); product/title set to `iRacingSequenceDirector` / `iRacing Sequence Director`. |

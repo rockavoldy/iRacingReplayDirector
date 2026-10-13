@@ -25,21 +25,25 @@ msbuild ReplayTimeline.sln /p:Configuration=Debug /p:Platform="Any CPU"
 # ReplayTimeline/bin/Release/iRacingSequenceDirector.exe
 ```
 
-**Prerequisites**: .NET Framework 4.7.2 SDK, Visual Studio 2015+
+**Prerequisites**: .NET Framework 4.8 SDK, Visual Studio 2017+
 
 ## External Dependencies
 
 The iRacing SDK wrapper provides the telemetry and control interface and is included as
-a **git submodule** at `external/iRacingSdkWrapper` (source: `NickThissen/iRacingSdkWrapper`).
+a **git submodule** at `external/iRacingSdkWrapper` (source: `rockavoldy/iRacingSdkWrapper`).
 It is built as part of this solution via `ProjectReference`, so no pre-built DLLs are
 needed. The solution builds three wrapper projects:
 
-- `iRacingSdkWrapper` (`iRacingSdkWrapper.dll`)
-- `iRacingSimulator` (`iRacingSimulator.dll`)
-- `iRSDKSharp` (`iRSDKSharp.dll`)
+- `iRacingSdkWrapper` (`iRacingSdkWrapper.dll`) - SDK-style, targets `net48`
+- `iRacingSimulator` (`iRacingSimulator.dll`) - SDK-style, targets `net48`
+- `iRSDKSharp` (`iRSDKSharp.dll`) - SDK-style, multi-targets `net48;netstandard2.0`
 
-`YamlDotNet.dll` is a transitive dependency of `iRacingSdkWrapper` (its `packages` folder
-is committed in the submodule) and is copied to the app output automatically.
+The wrapper projects are SDK-style and restore their dependencies
+(`Microsoft.NETFramework.ReferenceAssemblies`, `YamlDotNet`) via `PackageReference`, so
+run an MSBuild restore (`msbuild ReplayTimeline.sln -t:Restore`) in addition to
+`nuget restore` (which covers the app's `packages.config`). `YamlDotNet.dll` is a
+transitive dependency of `iRacingSdkWrapper` and is copied to the app output automatically.
+The app targets `net48` to match the wrapper.
 
 If the submodule lives elsewhere, override the root when building:
 `msbuild ReplayTimeline.sln /p:WrapperRoot=C:\path\to\iRacingSdkWrapper`.

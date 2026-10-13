@@ -231,16 +231,19 @@ flowchart LR
 
 ## 8. GitHub Actions auto-build flow
 
-The iRacing SDK wrapper is a git submodule at `external/iRacingSdkWrapper` and is built
-as part of the solution via `ProjectReference`, so there is no separate wrapper checkout
-or build step.
+The iRacing SDK wrapper is a git submodule at `external/iRacingSdkWrapper`
+(source `rockavoldy/iRacingSdkWrapper`) and is built as part of the solution via
+`ProjectReference`, so there is no separate wrapper checkout or build step. Its projects
+are SDK-style (`net48`), so the workflow restores both `packages.config` and
+`PackageReference` before building.
 
 ```mermaid
 flowchart TD
     A[push / PR / v* tag] --> B[Checkout app repo with submodules: recursive]
     B --> C[setup-msbuild + setup-nuget]
-    C --> D[nuget restore ReplayTimeline.sln]
-    D --> E[msbuild ReplayTimeline.sln Release Any CPU]
+    C --> D[nuget restore ReplayTimeline.sln packages.config]
+    D --> D1[msbuild ReplayTimeline.sln -t:Restore for PackageReference]
+    D1 --> E[msbuild ReplayTimeline.sln Release Any CPU]
     E --> E1[Builds wrapper projects: iRacingSdkWrapper, iRSDKSharp, iRacingSimulator]
     E1 --> E2[Copies wrapper DLLs + transitive YamlDotNet.dll to app output]
     E2 --> F[iRacingSequenceDirector.exe]

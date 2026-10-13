@@ -8,7 +8,7 @@
     <OutputType>WinExe</OutputType>
     <RootNamespace>iRacingReplayDirector</RootNamespace>
     <AssemblyName>iRacingSequenceDirector</AssemblyName>
-    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <WarningLevel>4</WarningLevel>
@@ -16,9 +16,11 @@
     <Deterministic>true</Deterministic>
     <!--
       Root of the iRacing SDK wrapper source. The wrapper is a git submodule
-      (NickThissen/iRacingSdkWrapper) checked out at external\iRacingSdkWrapper and is
+      (rockavoldy/iRacingSdkWrapper) checked out at external\iRacingSdkWrapper and is
       built as part of this solution via ProjectReference, so no pre-built DLLs are
-      required. Override on the command line if the submodule lives elsewhere, e.g.
+      required. The wrapper projects are SDK-style and target .NET Framework 4.8, so
+      this app also targets v4.8. Override on the command line if the submodule lives
+      elsewhere, e.g.
         msbuild ReplayTimeline.sln /p:WrapperRoot=C:\path\to\iRacingSdkWrapper
     -->
     <WrapperRoot Condition="'$(WrapperRoot)' == ''">$(MSBuildThisFileDirectory)..\external\iRacingSdkWrapper</WrapperRoot>
@@ -60,9 +62,11 @@
       <Project>{D6DB568B-35B3-49EB-8CB3-E4E5F1424247}</Project>
       <Name>iRacingSdkWrapper</Name>
     </ProjectReference>
+    <!-- iRSDKSharp multi-targets net48;netstandard2.0, so pin the reference to net48. -->
     <ProjectReference Include="$(WrapperRoot)\irsdkSharp\iRSDKSharp.csproj">
       <Project>{72631B85-EB9A-473E-9B4C-65B355A9000D}</Project>
       <Name>iRSDKSharp</Name>
+      <SetTargetFramework>TargetFramework=net48</SetTargetFramework>
     </ProjectReference>
     <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.13.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
