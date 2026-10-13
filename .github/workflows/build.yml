@@ -40,6 +40,45 @@ jobs:
       - name: Setup NuGet
         uses: NuGet/setup-nuget@v2
 
+      # The wrapper submodule (NickThissen/iRacingSdkWrapper) targets legacy
+      # frameworks - v4.0 (iRSDKSharp, iRacingSdkWrapper) and v4.5.1
+      # (iRacingSimulator). Current windows-latest (VS "18") runners no longer
+      # ship those reference assemblies, so MSBuild fails with:
+      #   error MSB3644: The reference assemblies for .NETFramework,Version=v4.0
+      #   were not found.
+      # The fix belongs upstream, but the wrapper is a submodule, so we retarget
+      # the projects to v4.7.2 (the same framework the app already targets) here
+      # before building. .NET Framework is backward compatible, so the wrapper
+      # libraries still work unchanged.
+      - name: Retarget submodule projects to .NET Framework 4.7.2
+        shell: pwsh
+        run: |
+          $target = "v4.7.2"
+          # Only the three wrapper projects pulled in by ReplayTimeline.sln.
+          $projects = @(
+            "external/iRacingSdkWrapper/irsdkSharp/iRSDKSharp.csproj",
+            "external/iRacingSdkWrapper/iRacingSdkWrapper/iRacingSdkWrapper.csproj",
+            "external/iRacingSdkWrapper/iRacingSimulator/iRacingSimulator.csproj"
+          )
+          foreach ($path in $projects) {
+            if (-not (Test-Path $path)) {
+              Write-Error "Expected project not found: $path"
+              exit 1
+            }
+            [xml]$xml = Get-Content -Raw $path
+            $changed = $false
+            foreach ($pg in $xml.Project.PropertyGroup) {
+              if ($pg.TargetFrameworkVersion) {
+                Write-Host "$($path): $($pg.TargetFrameworkVersion) -> $target"
+                $pg.TargetFrameworkVersion = $target
+                $changed = $true
+              }
+            }
+            if ($changed) {
+              $xml.Save((Resolve-Path $path).Path)
+            }
+          }
+
       - name: Cache NuGet packages
         uses: actions/cache@v4
         with:
