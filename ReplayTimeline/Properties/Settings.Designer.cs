@@ -190,5 +190,449 @@ namespace iRacingReplayDirector.Properties {
                 this["ShowLeaderboardOverlay"] = value;
             }
         }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("OpenAI")]
+        public string AIDirectorSelectedProvider {
+            get {
+                return ((string)(this["AIDirectorSelectedProvider"]));
+            }
+            set {
+                this["AIDirectorSelectedProvider"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string AIDirectorOpenAIApiKey {
+            get {
+                return ((string)(this["AIDirectorOpenAIApiKey"]));
+            }
+            set {
+                this["AIDirectorOpenAIApiKey"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("gpt-4o")]
+        public string AIDirectorOpenAIModel {
+            get {
+                return ((string)(this["AIDirectorOpenAIModel"]));
+            }
+            set {
+                this["AIDirectorOpenAIModel"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("http://localhost:11434/v1/chat/completions")]
+        public string AIDirectorLocalModelEndpoint {
+            get {
+                return ((string)(this["AIDirectorLocalModelEndpoint"]));
+            }
+            set {
+                this["AIDirectorLocalModelEndpoint"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("llama3")]
+        public string AIDirectorLocalModelName {
+            get {
+                return ((string)(this["AIDirectorLocalModelName"]));
+            }
+            set {
+                this["AIDirectorLocalModelName"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string AIDirectorOpenAICompatibleBaseUrl {
+            get {
+                return ((string)(this["AIDirectorOpenAICompatibleBaseUrl"]));
+            }
+            set {
+                this["AIDirectorOpenAICompatibleBaseUrl"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string AIDirectorOpenAICompatibleApiKey {
+            get {
+                return ((string)(this["AIDirectorOpenAICompatibleApiKey"]));
+            }
+            set {
+                this["AIDirectorOpenAICompatibleApiKey"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string AIDirectorOpenAICompatibleModel {
+            get {
+                return ((string)(this["AIDirectorOpenAICompatibleModel"]));
+            }
+            set {
+                this["AIDirectorOpenAICompatibleModel"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool AIDirectorDetectIncidents {
+            get {
+                return ((bool)(this["AIDirectorDetectIncidents"]));
+            }
+            set {
+                this["AIDirectorDetectIncidents"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool AIDirectorDetectOvertakes {
+            get {
+                return ((bool)(this["AIDirectorDetectOvertakes"]));
+            }
+            set {
+                this["AIDirectorDetectOvertakes"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool AIDirectorDetectBattles {
+            get {
+                return ((bool)(this["AIDirectorDetectBattles"]));
+            }
+            set {
+                this["AIDirectorDetectBattles"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("60")]
+        public int AIDirectorScanIntervalFrames {
+            get {
+                return ((int)(this["AIDirectorScanIntervalFrames"]));
+            }
+            set {
+                this["AIDirectorScanIntervalFrames"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("70")]
+        public int AIDirectorIncidentWeight {
+            get {
+                return ((int)(this["AIDirectorIncidentWeight"]));
+            }
+            set {
+                this["AIDirectorIncidentWeight"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("50")]
+        public int AIDirectorOvertakeWeight {
+            get {
+                return ((int)(this["AIDirectorOvertakeWeight"]));
+            }
+            set {
+                this["AIDirectorOvertakeWeight"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("10")]
+        public int AIDirectorBattleWeight {
+            get {
+                return ((int)(this["AIDirectorBattleWeight"]));
+            }
+            set {
+                this["AIDirectorBattleWeight"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("20")]
+        public int AIDirectorMomentumWeight {
+            get {
+                return ((int)(this["AIDirectorMomentumWeight"]));
+            }
+            set {
+                this["AIDirectorMomentumWeight"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("15")]
+        public int AIDirectorPackWeight {
+            get {
+                return ((int)(this["AIDirectorPackWeight"]));
+            }
+            set {
+                this["AIDirectorPackWeight"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("25")]
+        public int AIDirectorFreshActionWeight {
+            get {
+                return ((int)(this["AIDirectorFreshActionWeight"]));
+            }
+            set {
+                this["AIDirectorFreshActionWeight"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("20")]
+        public int AIDirectorPositionWeight {
+            get {
+                return ((int)(this["AIDirectorPositionWeight"]));
+            }
+            set {
+                this["AIDirectorPositionWeight"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("70")]
+        public int AIDirectorVarietyPenalty {
+            get {
+                return ((int)(this["AIDirectorVarietyPenalty"]));
+            }
+            set {
+                this["AIDirectorVarietyPenalty"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("30")]
+        public int AIDirectorVarietyDampening {
+            get {
+                return ((int)(this["AIDirectorVarietyDampening"]));
+            }
+            set {
+                this["AIDirectorVarietyDampening"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("4")]
+        public int AIDirectorMinCutsPerMinute {
+            get {
+                return ((int)(this["AIDirectorMinCutsPerMinute"]));
+            }
+            set {
+                this["AIDirectorMinCutsPerMinute"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool AIDirectorUseAIForCameraPlan {
+            get {
+                return ((bool)(this["AIDirectorUseAIForCameraPlan"]));
+            }
+            set {
+                this["AIDirectorUseAIForCameraPlan"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("3")]
+        public int AIDirectorEventAnticipationSeconds {
+            get {
+                return ((int)(this["AIDirectorEventAnticipationSeconds"]));
+            }
+            set {
+                this["AIDirectorEventAnticipationSeconds"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("15")]
+        public int AIDirectorMaxSecondsBetweenCuts {
+            get {
+                return ((int)(this["AIDirectorMaxSecondsBetweenCuts"]));
+            }
+            set {
+                this["AIDirectorMaxSecondsBetweenCuts"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("4")]
+        public int AIDirectorMinSecondsBetweenCuts {
+            get {
+                return ((int)(this["AIDirectorMinSecondsBetweenCuts"]));
+            }
+            set {
+                this["AIDirectorMinSecondsBetweenCuts"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("10")]
+        public int AIDirectorSecondsBetweenCuts {
+            get {
+                return ((int)(this["AIDirectorSecondsBetweenCuts"]));
+            }
+            set {
+                this["AIDirectorSecondsBetweenCuts"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int AIDirectorFocusDriverNumber {
+            get {
+                return ((int)(this["AIDirectorFocusDriverNumber"]));
+            }
+            set {
+                this["AIDirectorFocusDriverNumber"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("30")]
+        public int AIDirectorFocusDriverBonus {
+            get {
+                return ((int)(this["AIDirectorFocusDriverBonus"]));
+            }
+            set {
+                this["AIDirectorFocusDriverBonus"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Scenic,Pit Lane,Pit Lane 2,Chase,Far Chase")]
+        public string AIDirectorExcludedCameras {
+            get {
+                return ((string)(this["AIDirectorExcludedCameras"]));
+            }
+            set {
+                this["AIDirectorExcludedCameras"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool AIDirectorShowCurrentDriverOverlay {
+            get {
+                return ((bool)(this["AIDirectorShowCurrentDriverOverlay"]));
+            }
+            set {
+                this["AIDirectorShowCurrentDriverOverlay"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool AIDirectorShowAheadDriverOverlay {
+            get {
+                return ((bool)(this["AIDirectorShowAheadDriverOverlay"]));
+            }
+            set {
+                this["AIDirectorShowAheadDriverOverlay"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool AIDirectorShowBehindDriverOverlay {
+            get {
+                return ((bool)(this["AIDirectorShowBehindDriverOverlay"]));
+            }
+            set {
+                this["AIDirectorShowBehindDriverOverlay"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool AIDirectorShowLeaderboardOverlay {
+            get {
+                return ((bool)(this["AIDirectorShowLeaderboardOverlay"]));
+            }
+            set {
+                this["AIDirectorShowLeaderboardOverlay"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Bottom")]
+        public string AIDirectorOverlayPosition {
+            get {
+                return ((string)(this["AIDirectorOverlayPosition"]));
+            }
+            set {
+                this["AIDirectorOverlayPosition"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("100")]
+        public int AIDirectorOverlayOffset {
+            get {
+                return ((int)(this["AIDirectorOverlayOffset"]));
+            }
+            set {
+                this["AIDirectorOverlayOffset"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("32")]
+        public int AIDirectorOverlayFontSize {
+            get {
+                return ((int)(this["AIDirectorOverlayFontSize"]));
+            }
+            set {
+                this["AIDirectorOverlayFontSize"] = value;
+            }
+        }
     }
 }

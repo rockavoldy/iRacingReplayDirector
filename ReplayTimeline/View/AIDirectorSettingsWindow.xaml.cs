@@ -419,6 +419,12 @@ namespace iRacingReplayDirector
 		private void Save_Click(object sender, RoutedEventArgs e)
 		{
 			SaveSettings();
+
+			// These are global (application-wide) settings, not per-session. Persist them
+			// immediately so they survive a restart even if the app is force-closed.
+			SaveLoadHelper.SaveAIDirectorSettings(_aiDirector.Settings);
+			Properties.Settings.Default.Save();
+
 			DialogResult = true;
 			Close();
 		}

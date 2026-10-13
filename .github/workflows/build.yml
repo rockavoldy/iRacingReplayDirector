@@ -1,0 +1,130 @@
+name: Build
+
+# Auto-build the iRacing Automated Replay Director (WPF / .NET Framework 4.7.2).
+#
+# The app references the iRacing SDK wrapper, which is a git submodule
+# (NickThissen/iRacingSdkWrapper) checked out at external/iRacingSdkWrapper and built
+# as part of this solution via ProjectReference. No pre-built DLLs are required.
+
+on:
+  push:
+    branches:
+      - main
+      - master
+    tags:
+      - "v*"
+  pull_request:
+  workflow_dispatch:
+
+env:
+  SOLUTION: ReplayTimeline.sln
+  CONFIGURATION: Release
+  # The solution/project configurations are named "Any CPU" (with a space).
+  PLATFORM: Any CPU
+
+jobs:
+  build:
+    name: Build (Release)
+    runs-on: windows-latest
+
+    steps:
+      # The SDK wrapper is a submodule, so check out submodules recursively.
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Add MSBuild to PATH
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Setup NuGet
+        uses: NuGet/setup-nuget@v2
+
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.nuget/packages
+            packages
+            external/iRacingSdkWrapper/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/packages.config') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
+
+      # Restores Newtonsoft.Json (app) and the wrapper packages.config entries.
+      # The wrapper's YamlDotNet package is committed in the submodule, so this is
+      # a no-op for the wrapper in practice.
+      - name: Restore packages
+        run: nuget restore ${{ env.SOLUTION }}
+
+      # The solution includes the wrapper projects via ProjectReference, so this
+      # builds the wrapper and the app together.
+      - name: Build solution (Release)
+        run: >
+          msbuild ${{ env.SOLUTION }}
+          /p:Configuration=${{ env.CONFIGURATION }}
+          /p:Platform="${{ env.PLATFORM }}"
+          /m
+          /verbosity:minimal
+
+      - name: Verify build output
+        shell: pwsh
+        run: |
+          $exe = "ReplayTimeline/bin/Release/iRacingSequenceDirector.exe"
+          if (-not (Test-Path $exe)) {
+            Write-Error "Expected output not found: $exe"
+            exit 1
+          }
+
+          # The wrapper DLLs and their transitive dependency must be copied next to the exe.
+          $required = @(
+            "iRacingSdkWrapper.dll",
+            "iRacingSimulator.dll",
+            "iRSDKSharp.dll",
+            "YamlDotNet.dll",
+            "Newtonsoft.Json.dll"
+          )
+          $missing = @()
+          foreach ($dll in $required) {
+            if (-not (Test-Path "ReplayTimeline/bin/Release/$dll")) { $missing += $dll }
+          }
+          if ($missing.Count -gt 0) {
+            Write-Error "Missing dependency DLLs in output: $($missing -join ', ')"
+            exit 1
+          }
+
+          Get-ChildItem ReplayTimeline/bin/Release | Select-Object Name, Length
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: iRacingSequenceDirector-${{ github.sha }}
+          path: ReplayTimeline/bin/Release
+          if-no-files-found: error
+
+  release:
+    name: Release
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: windows-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: iRacingSequenceDirector-${{ github.sha }}
+          path: dist
+
+      - name: Package release zip
+        shell: pwsh
+        run: |
+          Compress-Archive -Path dist/* -DestinationPath "iRacingSequenceDirector-${{ github.ref_name }}.zip" -Force
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: iRacingSequenceDirector-${{ github.ref_name }}.zip
+          generate_release_notes: true

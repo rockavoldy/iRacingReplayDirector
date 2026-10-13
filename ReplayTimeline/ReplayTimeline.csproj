@@ -14,6 +14,14 @@
     <WarningLevel>4</WarningLevel>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <Deterministic>true</Deterministic>
+    <!--
+      Root of the iRacing SDK wrapper source. The wrapper is a git submodule
+      (NickThissen/iRacingSdkWrapper) checked out at external\iRacingSdkWrapper and is
+      built as part of this solution via ProjectReference, so no pre-built DLLs are
+      required. Override on the command line if the submodule lives elsewhere, e.g.
+        msbuild ReplayTimeline.sln /p:WrapperRoot=C:\path\to\iRacingSdkWrapper
+    -->
+    <WrapperRoot Condition="'$(WrapperRoot)' == ''">$(MSBuildThisFileDirectory)..\external\iRacingSdkWrapper</WrapperRoot>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -38,17 +46,24 @@
     <ApplicationIcon>Resources\Images\Icon.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="iRacingSdkWrapper, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\iRacingSdkWrapper\iRacingSimulator\bin\Release\iRacingSdkWrapper.dll</HintPath>
-    </Reference>
-    <Reference Include="iRacingSimulator">
-      <HintPath>..\..\iRacingSdkWrapper\iRacingSimulator\bin\Release\iRacingSimulator.dll</HintPath>
-    </Reference>
-    <Reference Include="iRSDKSharp, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\iRacingSdkWrapper\iRacingSimulator\bin\Release\iRSDKSharp.dll</HintPath>
-    </Reference>
+    <!--
+      The iRacing SDK wrapper is a git submodule built by this solution. Referencing the
+      projects directly means MSBuild builds them first and copies their outputs
+      (iRacingSdkWrapper.dll, iRacingSimulator.dll, iRSDKSharp.dll and the transitive
+      YamlDotNet.dll) into this project's output folder.
+    -->
+    <ProjectReference Include="$(WrapperRoot)\iRacingSimulator\iRacingSimulator.csproj">
+      <Project>{1765E7DB-BEE4-4324-A396-923D80B61EA0}</Project>
+      <Name>iRacingSimulator</Name>
+    </ProjectReference>
+    <ProjectReference Include="$(WrapperRoot)\iRacingSdkWrapper\iRacingSdkWrapper.csproj">
+      <Project>{D6DB568B-35B3-49EB-8CB3-E4E5F1424247}</Project>
+      <Name>iRacingSdkWrapper</Name>
+    </ProjectReference>
+    <ProjectReference Include="$(WrapperRoot)\irsdkSharp\iRSDKSharp.csproj">
+      <Project>{72631B85-EB9A-473E-9B4C-65B355A9000D}</Project>
+      <Name>iRSDKSharp</Name>
+    </ProjectReference>
     <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.13.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
@@ -67,9 +82,6 @@
     <Reference Include="WindowsBase" />
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
-    <Reference Include="YamlDotNet">
-      <HintPath>..\..\iRacingSdkWrapper\iRacingSdkWrapper\bin\Debug\YamlDotNet.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <ApplicationDefinition Include="App.xaml">

@@ -44,5 +44,116 @@
     <Setting Name="ShowLeaderboardOverlay" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
+    <Setting Name="AIDirectorSelectedProvider" Type="System.String" Scope="User">
+      <Value Profile="(Default)">OpenAI</Value>
+    </Setting>
+    <Setting Name="AIDirectorOpenAIApiKey" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="AIDirectorOpenAIModel" Type="System.String" Scope="User">
+      <Value Profile="(Default)">gpt-4o</Value>
+    </Setting>
+    <Setting Name="AIDirectorLocalModelEndpoint" Type="System.String" Scope="User">
+      <Value Profile="(Default)">http://localhost:11434/v1/chat/completions</Value>
+    </Setting>
+    <Setting Name="AIDirectorLocalModelName" Type="System.String" Scope="User">
+      <Value Profile="(Default)">llama3</Value>
+    </Setting>
+    <Setting Name="AIDirectorOpenAICompatibleBaseUrl" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="AIDirectorOpenAICompatibleApiKey" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="AIDirectorOpenAICompatibleModel" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="AIDirectorDetectIncidents" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="AIDirectorDetectOvertakes" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="AIDirectorDetectBattles" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="AIDirectorScanIntervalFrames" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">60</Value>
+    </Setting>
+    <Setting Name="AIDirectorIncidentWeight" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">70</Value>
+    </Setting>
+    <Setting Name="AIDirectorOvertakeWeight" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">50</Value>
+    </Setting>
+    <Setting Name="AIDirectorBattleWeight" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">10</Value>
+    </Setting>
+    <Setting Name="AIDirectorMomentumWeight" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">20</Value>
+    </Setting>
+    <Setting Name="AIDirectorPackWeight" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">15</Value>
+    </Setting>
+    <Setting Name="AIDirectorFreshActionWeight" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">25</Value>
+    </Setting>
+    <Setting Name="AIDirectorPositionWeight" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">20</Value>
+    </Setting>
+    <Setting Name="AIDirectorVarietyPenalty" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">70</Value>
+    </Setting>
+    <Setting Name="AIDirectorVarietyDampening" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">30</Value>
+    </Setting>
+    <Setting Name="AIDirectorMinCutsPerMinute" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">4</Value>
+    </Setting>
+    <Setting Name="AIDirectorUseAIForCameraPlan" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="AIDirectorEventAnticipationSeconds" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">3</Value>
+    </Setting>
+    <Setting Name="AIDirectorMaxSecondsBetweenCuts" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">15</Value>
+    </Setting>
+    <Setting Name="AIDirectorMinSecondsBetweenCuts" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">4</Value>
+    </Setting>
+    <Setting Name="AIDirectorSecondsBetweenCuts" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">10</Value>
+    </Setting>
+    <Setting Name="AIDirectorFocusDriverNumber" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">0</Value>
+    </Setting>
+    <Setting Name="AIDirectorFocusDriverBonus" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">30</Value>
+    </Setting>
+    <Setting Name="AIDirectorExcludedCameras" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Scenic,Pit Lane,Pit Lane 2,Chase,Far Chase</Value>
+    </Setting>
+    <Setting Name="AIDirectorShowCurrentDriverOverlay" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="AIDirectorShowAheadDriverOverlay" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="AIDirectorShowBehindDriverOverlay" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="AIDirectorShowLeaderboardOverlay" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="AIDirectorOverlayPosition" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Bottom</Value>
+    </Setting>
+    <Setting Name="AIDirectorOverlayOffset" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">100</Value>
+    </Setting>
+    <Setting Name="AIDirectorOverlayFontSize" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">32</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

@@ -1,11 +1,8 @@
 using iRacingReplayDirector.AI.Models;
-using iRacingSimulator;
 using System;
-using System.Collections.Generic;
 using System.Media;
 using System.Windows;
 using System.Windows.Input;
-using System.Windows.Threading;
 
 namespace iRacingReplayDirector
 {
@@ -48,7 +45,7 @@ namespace iRacingReplayDirector
 			}
 		}
 
-		public void Execute(object parameter)
+		public async void Execute(object parameter)
 		{
 			try
 			{
@@ -65,22 +62,28 @@ namespace iRacingReplayDirector
 					return;
 				}
 
-				var result = MessageBox.Show(
-					$"Scan replay from frame {startFrame} to {endFrame}?\n\nThis will take some time and the UI may be unresponsive.",
+				var confirmation = MessageBox.Show(
+					$"Scan replay from frame {startFrame} to {endFrame}?\n\nThis will take some time and the replay will jump through frames.",
 					"Confirm Scan",
 					MessageBoxButton.YesNo,
 					MessageBoxImage.Question);
 
-				if (result != MessageBoxResult.Yes)
+				if (confirmation != MessageBoxResult.Yes)
 					return;
 
-				// Run scan synchronously on UI thread (like other commands in this app)
-				var scanResult = RunScanSynchronously(startFrame, endFrame);
+				var aiDirector = ReplayDirectorVM.AIDirector;
+				if (aiDirector == null)
+					return;
+
+				// Run the scan via the AIDirector's async path. It steps through frames
+				// using awaited delays and dispatcher calls, so the UI thread is not
+				// blocked for the duration of the scan (unlike the previous DoEvents loop).
+				ReplayScanResult scanResult = await aiDirector.ScanReplayAsync(startFrame, endFrame);
 
 				if (scanResult == null)
 				{
-					string errorMsg = ReplayDirectorVM.AIDirector?.StatusMessage ?? "Scan failed";
-					if (errorMsg.Contains("error") || errorMsg.Contains("Error"))
+					string errorMsg = aiDirector.StatusMessage ?? "Scan failed";
+					if (errorMsg.IndexOf("error", StringComparison.OrdinalIgnoreCase) >= 0)
 					{
 						MessageBox.Show(
 							errorMsg,
@@ -110,147 +113,6 @@ namespace iRacingReplayDirector
 					MessageBoxButton.OK,
 					MessageBoxImage.Error);
 			}
-		}
-
-		private ReplayScanResult RunScanSynchronously(int startFrame, int endFrame)
-		{
-			var aiDirector = ReplayDirectorVM.AIDirector;
-			if (aiDirector == null) return null;
-
-			try
-			{
-				// Set state
-				aiDirector.SetScanning();
-
-				var scanResult = new ReplayScanResult
-				{
-					StartFrame = startFrame,
-					EndFrame = endFrame,
-					TrackName = "Unknown Track",
-					SessionType = "Race"
-				};
-
-				// Get track info
-				try
-				{
-					var weekendInfo = Sim.Instance.SessionInfo["WeekendInfo"];
-					scanResult.TrackName = weekendInfo?["TrackName"]?.GetValue("Unknown Track") ?? "Unknown Track";
-
-					var sessionNum = Sim.Instance.Telemetry?.SessionNum?.Value ?? 0;
-					var sessionInfo = Sim.Instance.SessionInfo["SessionInfo"]?["Sessions"]?["SessionNum", sessionNum];
-					scanResult.SessionType = sessionInfo?["SessionType"]?.GetValue("Race") ?? "Race";
-				}
-				catch { }
-
-				var snapshots = new List<TelemetrySnapshot>();
-				int totalFrames = endFrame - startFrame;
-				int frameStep = aiDirector.Settings.ScanIntervalFrames;
-				int originalFrame = ReplayDirectorVM.CurrentFrame;
-
-				// Scan loop
-				for (int frame = startFrame; frame <= endFrame; frame += frameStep)
-				{
-					try
-					{
-						// Jump to frame
-						Sim.Instance.Sdk.Replay.SetPosition(frame);
-
-						// Let UI update and telemetry refresh
-						DoEvents();
-						System.Threading.Thread.Sleep(50);
-						DoEvents();
-
-						// Capture snapshot
-						var snapshot = CaptureSnapshot(frame);
-						if (snapshot != null)
-						{
-							snapshots.Add(snapshot);
-						}
-
-						// Update progress
-						int progress = (int)(((frame - startFrame) / (float)totalFrames) * 100);
-						aiDirector.UpdateProgress(progress, $"Scanning: {progress}% ({frame}/{endFrame})");
-					}
-					catch
-					{
-						// Skip this frame on error
-						continue;
-					}
-				}
-
-				scanResult.Snapshots = snapshots;
-				scanResult.DurationSeconds = totalFrames / 60.0;
-
-				// Run detectors
-				aiDirector.UpdateProgress(100, "Analyzing events...");
-				DoEvents();
-
-				aiDirector.RunDetectors(scanResult, snapshots);
-
-				// Return to original position
-				try { Sim.Instance.Sdk.Replay.SetPosition(originalFrame); } catch { }
-
-				aiDirector.SetScanComplete(scanResult);
-				return scanResult;
-			}
-			catch (Exception ex)
-			{
-				aiDirector.SetError($"Scan error: {ex.Message}");
-				return null;
-			}
-		}
-
-		private TelemetrySnapshot CaptureSnapshot(int frame)
-		{
-			try
-			{
-				if (ReplayDirectorVM?.Drivers == null || ReplayDirectorVM.Drivers.Count == 0)
-					return null;
-
-				var snapshot = new TelemetrySnapshot
-				{
-					Frame = frame,
-					SessionTime = ReplayDirectorVM.SessionTime,
-					DriverStates = new List<DriverSnapshot>()
-				};
-
-				foreach (var driver in ReplayDirectorVM.Drivers)
-				{
-					if (driver == null) continue;
-
-					try
-					{
-						snapshot.DriverStates.Add(new DriverSnapshot
-						{
-							Id = driver.Id,
-							NumberRaw = driver.NumberRaw,
-							TeamName = driver.TeamName ?? string.Empty,
-							Position = driver.Position,
-							Lap = driver.Lap,
-							LapDistance = driver.LapDistance,
-							TrackSurface = driver.TrackSurface
-						});
-					}
-					catch { }
-				}
-
-				return snapshot;
-			}
-			catch
-			{
-				return null;
-			}
-		}
-
-		private void DoEvents()
-		{
-			try
-			{
-				Application.Current?.Dispatcher?.Invoke(
-					DispatcherPriority.Background,
-					new Action(delegate { }));
-			}
-			catch { }
 		}
 	}
 }

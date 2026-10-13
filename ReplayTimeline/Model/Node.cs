@@ -10,14 +10,28 @@ namespace iRacingReplayDirector
 		public bool Enabled
 		{
 			get { return _enabled; }
-			set { _enabled = value; OnPropertyChanged("Enabled"); }
+			set
+			{
+				// Only notify on an actual change. Node re-linking (e.g. when a node's
+				// NextNode/PreviousNode is assigned) re-runs UpdateLabel, which sets
+				// Enabled; without this guard each re-link raised a spurious change and
+				// triggered a project save through NodeCollection.
+				if (_enabled == value) return;
+				_enabled = value;
+				OnPropertyChanged("Enabled");
+			}
 		}
 
 		private int _frame;
 		public int Frame
 		{
 			get { return _frame; }
-			set { _frame = value; OnPropertyChanged("Frame"); }
+			set
+			{
+				if (_frame == value) return;
+				_frame = value;
+				OnPropertyChanged("Frame");
+			}
 		}
 
 

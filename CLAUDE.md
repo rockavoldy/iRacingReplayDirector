@@ -9,14 +9,17 @@ iRacing Sequence Director is a WPF desktop application for creating replay edits
 ## Build Commands
 
 ```bash
+# Fetch the iRacing SDK wrapper submodule (first clone only)
+git submodule update --init --recursive
+
 # Restore NuGet packages
 nuget restore ReplayTimeline.sln
 
-# Build solution (Release)
-msbuild ReplayTimeline.sln /p:Configuration=Release /p:Platform=AnyCPU
+# Build solution (Release). Note the platform is "Any CPU" (with a space).
+msbuild ReplayTimeline.sln /p:Configuration=Release /p:Platform="Any CPU"
 
 # Build solution (Debug)
-msbuild ReplayTimeline.sln /p:Configuration=Debug /p:Platform=AnyCPU
+msbuild ReplayTimeline.sln /p:Configuration=Debug /p:Platform="Any CPU"
 
 # Output location
 # ReplayTimeline/bin/Release/iRacingSequenceDirector.exe
@@ -26,10 +29,20 @@ msbuild ReplayTimeline.sln /p:Configuration=Debug /p:Platform=AnyCPU
 
 ## External Dependencies
 
-The project depends on iRacing SDK wrapper DLLs not included in this repository:
-- `iRacingSdkWrapper.dll`, `iRacingSimulator.dll`, `iRSDKSharp.dll`
-- Expected at: `../../iRacingSdkWrapper/iRacingSimulator/bin/Release/`
-- These provide the iRacing telemetry and control interface
+The iRacing SDK wrapper provides the telemetry and control interface and is included as
+a **git submodule** at `external/iRacingSdkWrapper` (source: `NickThissen/iRacingSdkWrapper`).
+It is built as part of this solution via `ProjectReference`, so no pre-built DLLs are
+needed. The solution builds three wrapper projects:
+
+- `iRacingSdkWrapper` (`iRacingSdkWrapper.dll`)
+- `iRacingSimulator` (`iRacingSimulator.dll`)
+- `iRSDKSharp` (`iRSDKSharp.dll`)
+
+`YamlDotNet.dll` is a transitive dependency of `iRacingSdkWrapper` (its `packages` folder
+is committed in the submodule) and is copied to the app output automatically.
+
+If the submodule lives elsewhere, override the root when building:
+`msbuild ReplayTimeline.sln /p:WrapperRoot=C:\path\to\iRacingSdkWrapper`.
 
 ## Architecture
 

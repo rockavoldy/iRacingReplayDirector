@@ -5,6 +5,14 @@ VisualStudioVersion = 16.0.31205.134
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReplayTimeline", "ReplayTimeline\ReplayTimeline.csproj", "{76C0B412-2949-4766-8F65-1B9140429066}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "external", "external", "{C4E0A1B2-3D4E-4F5A-9B6C-7D8E9F0A1B2C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "iRacingSdkWrapper", "external\iRacingSdkWrapper\iRacingSdkWrapper\iRacingSdkWrapper.csproj", "{D6DB568B-35B3-49EB-8CB3-E4E5F1424247}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "iRSDKSharp", "external\iRacingSdkWrapper\irsdkSharp\iRSDKSharp.csproj", "{72631B85-EB9A-473E-9B4C-65B355A9000D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "iRacingSimulator", "external\iRacingSdkWrapper\iRacingSimulator\iRacingSimulator.csproj", "{1765E7DB-BEE4-4324-A396-923D80B61EA0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,9 +23,26 @@ Global
 		{76C0B412-2949-4766-8F65-1B9140429066}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{76C0B412-2949-4766-8F65-1B9140429066}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{76C0B412-2949-4766-8F65-1B9140429066}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D6DB568B-35B3-49EB-8CB3-E4E5F1424247}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D6DB568B-35B3-49EB-8CB3-E4E5F1424247}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D6DB568B-35B3-49EB-8CB3-E4E5F1424247}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D6DB568B-35B3-49EB-8CB3-E4E5F1424247}.Release|Any CPU.Build.0 = Release|Any CPU
+		{72631B85-EB9A-473E-9B4C-65B355A9000D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{72631B85-EB9A-473E-9B4C-65B355A9000D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{72631B85-EB9A-473E-9B4C-65B355A9000D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{72631B85-EB9A-473E-9B4C-65B355A9000D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1765E7DB-BEE4-4324-A396-923D80B61EA0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1765E7DB-BEE4-4324-A396-923D80B61EA0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1765E7DB-BEE4-4324-A396-923D80B61EA0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1765E7DB-BEE4-4324-A396-923D80B61EA0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{D6DB568B-35B3-49EB-8CB3-E4E5F1424247} = {C4E0A1B2-3D4E-4F5A-9B6C-7D8E9F0A1B2C}
+		{72631B85-EB9A-473E-9B4C-65B355A9000D} = {C4E0A1B2-3D4E-4F5A-9B6C-7D8E9F0A1B2C}
+		{1765E7DB-BEE4-4324-A396-923D80B61EA0} = {C4E0A1B2-3D4E-4F5A-9B6C-7D8E9F0A1B2C}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {D8AFF92D-DF19-49CB-B3F0-D71003A4A206}

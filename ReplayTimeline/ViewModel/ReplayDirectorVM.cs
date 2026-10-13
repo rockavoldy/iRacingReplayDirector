@@ -150,12 +150,9 @@ namespace iRacingReplayDirector
 		{
 			Driver driver = item as Driver;
 
-			if (driver != CurrentDriver)
-			{
-				_currentDriver = driver;
-				OnPropertyChanged("CurrentDriver");
-			}
-
+			// A collection-view filter is a pure predicate and must not mutate state:
+			// it can be evaluated repeatedly and re-entrantly. CurrentDriver is driven
+			// from telemetry in ProcessTelemetry instead.
 			return driver.TrackSurface != TrackSurfaces.NotInWorld;
 		}
 
@@ -444,8 +441,15 @@ namespace iRacingReplayDirector
 			PlaybackEnabled = CurrentPlaybackSpeed != 0;
 			SlowMotionEnabled = telemetry.ReplayPlaySlowMotion.Value;
 			NormalPlaybackSpeedEnabled = CurrentPlaybackSpeed == 1 && !SlowMotionEnabled;
-			InSimCaptureSettingEnabled = Sim.Instance.Sdk.GetTelemetryValue<bool>("VidCapEnabled").Value;
-			InSimCaptureActive = Sim.Instance.Sdk.GetTelemetryValue<bool>("VidCapActive").Value;
+
+			// The SDK can be mid-teardown when these run; guard them so a transient
+			// failure does not abort the rest of the telemetry update. On failure the
+			// previous value is retained rather than being reported as "not capturing".
+			try { InSimCaptureSettingEnabled = Sim.Instance.Sdk.GetTelemetryValue<bool>("VidCapEnabled").Value; }
+			catch { }
+
+			try { InSimCaptureActive = Sim.Instance.Sdk.GetTelemetryValue<bool>("VidCapActive").Value; }
+			catch { }
 
 			// Set current car/camera based on sim selections (won't update unless different to app)
 			CurrentDriver = Drivers.FirstOrDefault(d => d.Id == telemetry.CamCarIdx.Value);
@@ -459,6 +463,10 @@ namespace iRacingReplayDirector
 
 			if (!PlaybackEnabled)
 			{
+				// Playback is paused/stopped: forget the last applied node so that after a
+				// rewind or a node edit the correct node is applied again when playback resumes.
+				_lastAppliedNode = null;
+
 				var currentNode = NodeCollection.GetNodeOnCurrentFrame(CurrentFrame);
 				_currentNode = currentNode; OnPropertyChanged("CurrentNode");
 

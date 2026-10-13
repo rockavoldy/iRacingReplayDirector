@@ -12,7 +12,16 @@ namespace iRacingReplayDirector
 
 		public override bool IsAvailable()
 		{
-			CaptureModeAvailable = Sim.Instance.Sdk.GetTelemetryValue<bool>("VidCapEnabled").Value;;
+			// The SDK may not be connected yet; treat that as "not available" rather
+			// than letting the call throw.
+			try
+			{
+				CaptureModeAvailable = Sim.Instance.Sdk.GetTelemetryValue<bool>("VidCapEnabled").Value;
+			}
+			catch
+			{
+				CaptureModeAvailable = false;
+			}
 
 			CaptureAvailabilityMessage = CaptureModeAvailable ? "" : "Enable In-Sim capture under iRacing's Options (Misc) and restart iRacing.";
 

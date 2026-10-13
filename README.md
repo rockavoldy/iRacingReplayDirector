@@ -292,3 +292,24 @@ To use OBS recording without manually starting the recording process, you'll nee
 ### Using custom cameras
 
 You can use your own modified cameras using the iRacing Camera Tool. I've written a basic guide on how to do that here: https://docs.google.com/document/d/1EOWFVIqH9OppcqurmR_wzZs_czvqj3_zsKU_qR6fKfo/edit?usp=sharing
+
+## Building from source
+
+Prerequisites: .NET Framework 4.7.2 SDK and Visual Studio 2015+ (or MSBuild).
+
+The iRacing SDK wrapper is a git submodule, so initialise it before building:
+
+```bash
+git submodule update --init --recursive
+nuget restore ReplayTimeline.sln
+msbuild ReplayTimeline.sln /p:Configuration=Release /p:Platform="Any CPU"
+```
+
+The output is `ReplayTimeline/bin/Release/iRacingSequenceDirector.exe`. The wrapper
+projects (`iRacingSdkWrapper`, `iRacingSimulator`, `iRSDKSharp`) and their transitive
+`YamlDotNet.dll` are built as part of the solution and copied to the output automatically.
+If the submodule lives elsewhere, pass `/p:WrapperRoot=C:\path\to\iRacingSdkWrapper`.
+
+> Note: settings are global and stored per Windows user profile (window layout, capture
+> mode, Auto Director LLM credentials, camera exclusions, detection options, driver-selection
+> weights, camera-plan timing and overlays). Only the node timeline is saved per session.
